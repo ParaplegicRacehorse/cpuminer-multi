@@ -1,16 +1,36 @@
 # Usage: docker build .
 # Usage: docker run tpruvot/cpuminer-multi -a xevan --url=stratum+tcp://yiimp.ccminer.org:3739 --user=iGadPnKrdpW3pcdVC3aA77Ku4anrzJyaLG --pass=x
 
-FROM		ubuntu:14.04
-MAINTAINER	Tanguy Pruvot <tanguy.pruvot@gmail.com>
+# FROM		ubuntu:14.04
+# MAINTAINER	Tanguy Pruvot <tanguy.pruvot@gmail.com>
+FROM  alpine:3.7
 
-RUN		apt-get update -qq
+# update the package list from default OS repos
+# RUN		apt-get update -qq
 
-RUN		apt-get install -qy automake autoconf pkg-config libcurl4-openssl-dev libssl-dev libjansson-dev libgmp-dev make g++ git
+# RUN		apt-get install -qy automake autoconf pkg-config libcurl4-openssl-dev libssl-dev libjansson-dev libgmp-dev make g++ git
 
-RUN		git clone https://github.com/tpruvot/cpuminer-multi -b linux
+# install runtime dependancies
+RUN   apk --update add libcurl \
+                       libgcc \
+                       libstdc++ \
+                       openssl
 
+# install dependancies required only for build; then remove them from image
+RUN   apk --update add --virtual autoconf \
+                                 automake \
+                                 build-base \
+                                 curl \
+                                 curl-dev \
+                                 git \
+                                 openssl-dev 
+
+# do git stuff
+RUN		git clone https://github.com/tpruvot/cpuminer-multi -b linux /tmp/
+
+# compile
 RUN		cd cpuminer-multi && ./build.sh
 
+# set the run environment
 WORKDIR		/cpuminer-multi
 ENTRYPOINT	["./cpuminer"]
