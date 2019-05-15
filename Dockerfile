@@ -11,19 +11,22 @@ FROM  alpine:3.7
 # RUN		apt-get install -qy automake autoconf pkg-config libcurl4-openssl-dev libssl-dev libjansson-dev libgmp-dev make g++ git
 
 # install runtime dependancies
-RUN   apk --update add libcurl \
-                       libgcc \
-                       libstdc++ \
-                       openssl
+RUN   apk --update --no-cache add \
+        libcurl \
+        libgcc \
+        libstdc++ \
+        openssl
 
 # install dependancies required only for build; then remove them from image
-RUN   apk --update add --virtual autoconf \
-                                 automake \
-                                 build-base \
-                                 curl \
-                                 curl-dev \
-                                 git \
-                                 openssl-dev 
+# pkgs updated in previous command, but --no-cache means db not preserved, so we need to update again!
+RUN   apk --update --no-cache add --virtual \
+        autoconf \
+        automake \
+        build-base \
+        curl \
+        curl-dev \
+        git \
+        openssl-dev 
 
 # do git stuff
 RUN		git clone https://github.com/tpruvot/cpuminer-multi -b linux /tmp/
